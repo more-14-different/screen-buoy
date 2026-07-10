@@ -4,17 +4,17 @@ use screen_buoy::config;
 use screen_buoy::element;
 use screen_buoy::hint;
 use screen_buoy::hint::create_overlay_windows;
-use screen_buoy::utils::logger::init_logger;
 use screen_buoy::input;
 use screen_buoy::monitor::monitor;
 use screen_buoy::set_auto_start;
 use screen_buoy::setup_panic_handler;
 use screen_buoy::setup_shortcut;
 use screen_buoy::setup_tray;
+use screen_buoy::utils::logger::init_logger;
+use std::env;
 use tauri::Manager;
 #[cfg(target_os = "windows")]
 use windows::Win32::System::Com::{CoInitializeEx, CoUninitialize, COINIT_APARTMENTTHREADED};
-use std::env;
 
 fn main() {
     // 自动切换到 exe 所在目录, 为了解决windows自动启动时workding directory读取不到配置文件的问题
@@ -32,7 +32,7 @@ fn main() {
 
     // Initialize logger
     let _ = init_logger(config.system.logging_level.clone());
-    
+
     #[cfg(target_os = "windows")]
     unsafe {
         let result = CoInitializeEx(None, COINIT_APARTMENTTHREADED);

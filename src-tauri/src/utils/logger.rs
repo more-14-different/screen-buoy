@@ -32,7 +32,11 @@ pub fn init_logger(log_level: String) -> Result<(), Box<dyn std::error::Error>> 
     let log_dir = log_directory();
     Logger::try_with_str(&spec)?
         .log_to_stdout()
-        .log_to_file(FileSpec::default().directory(&log_dir).basename("screen-buoy"))
+        .log_to_file(
+            FileSpec::default()
+                .directory(&log_dir)
+                .basename("screen-buoy"),
+        )
         .rotate(
             Criterion::Size(3_000_000),
             Naming::Numbers,

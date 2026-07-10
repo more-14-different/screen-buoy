@@ -159,14 +159,20 @@ fn ax_point_size(element: AXUIElementRef) -> Option<(f64, f64, f64, f64)> {
     };
     unsafe {
         if AXValueGetType(pos_v.as_CFTypeRef()) != K_AXVALUE_CGPOINT
-            || AXValueGetValue(pos_v.as_CFTypeRef(), K_AXVALUE_CGPOINT, &mut pt as *mut _ as *mut c_void)
-                == 0
+            || AXValueGetValue(
+                pos_v.as_CFTypeRef(),
+                K_AXVALUE_CGPOINT,
+                &mut pt as *mut _ as *mut c_void,
+            ) == 0
         {
             return None;
         }
         if AXValueGetType(sz_v.as_CFTypeRef()) != K_AXVALUE_CGSIZE
-            || AXValueGetValue(sz_v.as_CFTypeRef(), K_AXVALUE_CGSIZE, &mut sz as *mut _ as *mut c_void)
-                == 0
+            || AXValueGetValue(
+                sz_v.as_CFTypeRef(),
+                K_AXVALUE_CGSIZE,
+                &mut sz as *mut _ as *mut c_void,
+            ) == 0
         {
             return None;
         }
@@ -174,7 +180,13 @@ fn ax_point_size(element: AXUIElementRef) -> Option<(f64, f64, f64, f64)> {
     Some((pt.x, pt.y, sz.width, sz.height))
 }
 
-fn ax_rect_scaled_to_pixels(px: f64, py: f64, pw: f64, ph: f64, target: &WindowElement) -> (i32, i32, i32, i32) {
+fn ax_rect_scaled_to_pixels(
+    px: f64,
+    py: f64,
+    pw: f64,
+    ph: f64,
+    target: &WindowElement,
+) -> (i32, i32, i32, i32) {
     let sx = target.width as f64 / pw.max(1.0);
     let sy = target.height as f64 / ph.max(1.0);
     (
@@ -219,7 +231,10 @@ fn frame_iou(a: (i32, i32, i32, i32), b: (i32, i32, i32, i32)) -> f64 {
     inter as f64 / u as f64
 }
 
-fn find_ax_window(app: AXUIElementRef, target: &WindowElement) -> Option<(CFType, f64, f64, f64, f64)> {
+fn find_ax_window(
+    app: AXUIElementRef,
+    target: &WindowElement,
+) -> Option<(CFType, f64, f64, f64, f64)> {
     let Some(wins) = ax_copy_attribute(app, AX_WINDOWS.as_cf()) else {
         warn!(
             "[ui_automation macos] AXWindows missing pid={} wh={}",
@@ -393,11 +408,13 @@ fn ensure_enhanced_ui(app: AXUIElementRef, pid: i32) {
         return;
     }
     let val = CFBoolean::true_value();
-    let rc = unsafe {
-        AXUIElementSetAttributeValue(app, AX_ENHANCED_UI.as_cf(), val.as_CFTypeRef())
-    };
+    let rc =
+        unsafe { AXUIElementSetAttributeValue(app, AX_ENHANCED_UI.as_cf(), val.as_CFTypeRef()) };
     if rc == AX_SUCCESS {
-        info!("[ui_automation macos] AXEnhancedUserInterface set for pid={}", pid);
+        info!(
+            "[ui_automation macos] AXEnhancedUserInterface set for pid={}",
+            pid
+        );
     }
     set.insert(pid);
 }
@@ -465,7 +482,10 @@ fn get_elements_for_window_inner(window: &WindowElement) -> Option<Vec<UIElement
 }
 
 pub fn clean_expired_cache() {
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
     let mut cache = ELEMENTS_CACHE_WITH_EXPIRATION.lock().unwrap();
     cache.retain(|_, (_, expire_at)| *expire_at > now);
 }

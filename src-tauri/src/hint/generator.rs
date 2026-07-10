@@ -40,7 +40,10 @@ pub fn init_hint_text_list_storage() {
             generate_n_digit_hints(&hint_config.charsets, prefix, 0, &mut list);
         }
     }
-    info!("[init_hint_text_list_storage] init hint text list storage: {}", list.len());
+    info!(
+        "[init_hint_text_list_storage] init hint text list storage: {}",
+        list.len()
+    );
     *HINT_TEXT_LIST_STORAGE.lock().unwrap() = list;
 }
 
@@ -84,10 +87,7 @@ impl HintsGenerator {
         }
     }
 
-    pub fn generate_hints_grid(
-        &self,
-        hints_count: &mut i32,
-    ) -> HashMap<String, Vec<Hint>> {
+    pub fn generate_hints_grid(&self, hints_count: &mut i32) -> HashMap<String, Vec<Hint>> {
         let mut monitor_hints = HashMap::new();
         let config = config::get_config().unwrap();
         let grid_row = config.hint.grid.rows;
@@ -106,8 +106,12 @@ impl HintsGenerator {
                     }
                     let hint = Hint {
                         text: HINT_TEXT_LIST_STORAGE.lock().unwrap()[*hints_count as usize].clone(),
-                        x: (((*column as f64) - 0.5) * monitor.width as f64 / grid_column as f64 / monitor.scale_factor) as i32,
-                        y: (((*row as f64) - 0.5) * monitor.height as f64 / grid_row as f64 / monitor.scale_factor) as i32,
+                        x: (((*column as f64) - 0.5) * monitor.width as f64
+                            / grid_column as f64
+                            / monitor.scale_factor) as i32,
+                        y: (((*row as f64) - 0.5) * monitor.height as f64
+                            / grid_row as f64
+                            / monitor.scale_factor) as i32,
                         z: hint_z,
                         scale: monitor.scale_factor,
                         hint_type: HINT_TYPE_ID_MAP.get(&hint_type).unwrap().clone(),
@@ -118,7 +122,11 @@ impl HintsGenerator {
             }
             monitor_hints.insert(format!("{}{}", OVERLAY_WINDOW_PREFIX, index), hints);
         }
-        debug!("[generate_hints_grid] generate {} hints: {:?}", monitor_hints.len(), monitor_hints);
+        debug!(
+            "[generate_hints_grid] generate {} hints: {:?}",
+            monitor_hints.len(),
+            monitor_hints
+        );
         monitor_hints
     }
 
@@ -141,7 +149,10 @@ impl HintsGenerator {
                 );
             }
         }
-        debug!("[generate_hints_batch1] generate hints for {} windows", monitor_hints.len());
+        debug!(
+            "[generate_hints_batch1] generate hints for {} windows",
+            monitor_hints.len()
+        );
         monitor_hints
     }
 
@@ -163,7 +174,10 @@ impl HintsGenerator {
                 );
             }
         }
-        debug!("[generate_hints_batch2] generate hints for {} windows", monitor_hints.len());
+        debug!(
+            "[generate_hints_batch2] generate hints for {} windows",
+            monitor_hints.len()
+        );
         monitor_hints
     }
 
@@ -214,8 +228,10 @@ impl HintsGenerator {
 
                 if !is_covered {
                     if *hints_count >= HINT_TEXT_LIST_STORAGE.lock().unwrap().len() as i32 {
-                        debug!("[generator] skip hint:{}:({},{}) due to hint text is out of use",
-                            hint.text, hint.x, hint.y);
+                        debug!(
+                            "[generator] skip hint:{}:({},{}) due to hint text is out of use",
+                            hint.text, hint.x, hint.y
+                        );
                         return;
                     }
 

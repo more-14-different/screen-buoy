@@ -1,8 +1,8 @@
-use log::{debug, error, info};
+use log::debug;
 
 use crate::{
     config,
-    hint::{filter_hints, hide_hints, move_hints, hint::get_hint_position_by_text},
+    hint::{filter_hints, hide_hints, hint::get_hint_position_by_text, move_hints},
 };
 
 use super::{keyboard::KeyboardState, mouse};
@@ -131,7 +131,10 @@ impl<'a> Executor<'a> {
 
         let app_handle_clone = self.app_handle.clone();
         if hold_duration < 300 {
-            debug!("[execute_quick_click] execute quick click since hold_duration: {} < 300", hold_duration);
+            debug!(
+                "[execute_quick_click] execute quick click since hold_duration: {} < 300",
+                hold_duration
+            );
             tauri::async_runtime::spawn(async move {
                 mouse::mouse_click_left().await;
                 if exit {
@@ -148,13 +151,15 @@ impl<'a> Executor<'a> {
             debug!("[execute_hold_at_hint] enter hold state");
             self.state.final_hint_key_hold = true;
             self.state.final_hint_key_hold_start = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
                 .as_millis() as u64;
             let app_handle_clone = self.app_handle.clone();
             if self.state.final_hint_key.clone().unwrap().is_empty() {
                 // 未找到末位hint, 提前进入hold状态
-                debug!("[execute_hold_at_hint] no final hint, directly to hold state, filter hints");
+                debug!(
+                    "[execute_hold_at_hint] no final hint, directly to hold state, filter hints"
+                );
                 tauri::async_runtime::spawn(async move {
                     mouse::show_cursor().await;
                     filter_hints(app_handle_clone, "_removeAllHints".to_string()).await;

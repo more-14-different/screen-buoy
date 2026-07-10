@@ -1,12 +1,13 @@
 use std::sync::Mutex;
 
-use log::{debug, error, info};
+use log::{debug, error};
 use once_cell::sync::Lazy;
 use windows::Win32::{
     Foundation::{LPARAM, LRESULT, WPARAM},
     UI::{
         Input::KeyboardAndMouse::{
-            GetKeyboardState, ToUnicode, VK_OEM_1, VK_OEM_2, VK_OEM_3, VK_OEM_4, VK_OEM_5, VK_OEM_6, VK_OEM_7, VK_OEM_COMMA, VK_OEM_MINUS, VK_OEM_PERIOD, VK_OEM_PLUS
+            GetKeyboardState, ToUnicode, VK_OEM_1, VK_OEM_2, VK_OEM_3, VK_OEM_4, VK_OEM_5,
+            VK_OEM_6, VK_OEM_7, VK_OEM_COMMA, VK_OEM_MINUS, VK_OEM_PERIOD, VK_OEM_PLUS,
         },
         WindowsAndMessaging::{
             CallNextHookEx, SetWindowsHookExW, UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT,
@@ -38,8 +39,15 @@ pub unsafe extern "system" fn keyboard_hook_proc(
     let vk_code = key_info.vkCode as u16;
 
     let key: String;
-    if let Some(key_config) = config::keyboard::VIRTUAL_KEY_MAP.lock().unwrap().get(&vk_code) {
-        debug!("[keyboard_hook_proc] read keyboard config key: {}, vk_code: {}", key_config, vk_code);
+    if let Some(key_config) = config::keyboard::VIRTUAL_KEY_MAP
+        .lock()
+        .unwrap()
+        .get(&vk_code)
+    {
+        debug!(
+            "[keyboard_hook_proc] read keyboard config key: {}, vk_code: {}",
+            key_config, vk_code
+        );
         key = key_config.to_string();
     } else {
         // 转换虚拟键码到字符串

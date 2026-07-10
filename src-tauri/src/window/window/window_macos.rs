@@ -5,7 +5,7 @@ use core_foundation::dictionary::{CFDictionary, CFDictionaryRef};
 use core_foundation::number::CFNumber;
 use core_foundation::string::CFString;
 use core_graphics::display::{
-    CGDisplay, kCGWindowListExcludeDesktopElements, kCGWindowListOptionOnScreenOnly,
+    kCGWindowListExcludeDesktopElements, kCGWindowListOptionOnScreenOnly, CGDisplay,
 };
 use indexmap::IndexMap;
 use log::{debug, error};
@@ -64,7 +64,7 @@ fn bounds_rect(dict: &CFDictionary<CFString, CFType>) -> Option<(i32, i32, i32, 
     let bounds_cf = dict.find(&k)?.clone();
     let bounds = unsafe {
         CFDictionary::<CFString, CFType>::wrap_under_get_rule(
-            bounds_cf.as_CFTypeRef() as CFDictionaryRef,
+            bounds_cf.as_CFTypeRef() as CFDictionaryRef
         )
     };
     let x = cf_dict_get_number(&bounds, "X")?.to_f64()? as i32;
@@ -89,7 +89,9 @@ pub fn get_all_windows() -> Vec<WindowElement> {
             continue;
         }
         let dict = unsafe {
-            CFDictionary::<CFString, CFType>::wrap_under_get_rule(ptr as core_foundation::dictionary::CFDictionaryRef)
+            CFDictionary::<CFString, CFType>::wrap_under_get_rule(
+                ptr as core_foundation::dictionary::CFDictionaryRef,
+            )
         };
 
         if let Some(false) = cf_dict_get_bool(&dict, "kCGWindowIsOnscreen") {

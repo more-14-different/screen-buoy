@@ -110,7 +110,10 @@ impl KeybindingConfig {
             keybindings.insert(TRANSLATE_LEFT_CMD, self.global.translate.left.clone());
             keybindings.insert(TRANSLATE_RIGHT_CMD, self.global.translate.right.clone());
         }
-        info!("[get_global_keybindings] is key_down: {}, keybindings: {:?}", key_down, keybindings);
+        info!(
+            "[get_global_keybindings] is key_down: {}, keybindings: {:?}",
+            key_down, keybindings
+        );
         keybindings
     }
 

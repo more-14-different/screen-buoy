@@ -192,10 +192,7 @@ unsafe extern "C" fn tap_callback(
                 let pressed = unsafe { CGEventSourceKeyState(0, *code) };
                 let old = state.hold_keys.get(name.as_str()).copied().unwrap_or(false);
                 if old != pressed {
-                    debug!(
-                        "[mac tap] sync modifier {}={} (was {})",
-                        name, pressed, old
-                    );
+                    debug!("[mac tap] sync modifier {}={} (was {})", name, pressed, old);
                     state.hold_keys.insert(name.clone(), pressed);
                 }
             }
@@ -300,7 +297,9 @@ pub fn init(app_handle: tauri::AppHandle) {
 pub fn cleanup() {
     let rl_ptr = TAP_RUNLOOP.swap(std::ptr::null_mut(), Ordering::AcqRel);
     if !rl_ptr.is_null() {
-        unsafe { CFRunLoopStop(rl_ptr); }
+        unsafe {
+            CFRunLoopStop(rl_ptr);
+        }
     }
     *APP_HANDLE.lock().unwrap() = None;
 }

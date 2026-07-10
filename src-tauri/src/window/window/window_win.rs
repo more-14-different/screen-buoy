@@ -9,7 +9,9 @@ use windows::core::BOOL;
 use windows::Win32::Foundation::{HWND, LPARAM, RECT};
 use windows::Win32::UI::Input::KeyboardAndMouse::IsWindowEnabled;
 use windows::Win32::UI::WindowsAndMessaging::{
-    EnumWindows, GetClassNameW, GetClientRect, GetTopWindow, GetWindow, GetWindowLongW, GetWindowRect, GetWindowTextW, IsIconic, IsWindowVisible, GWL_EXSTYLE, GW_HWNDNEXT, WS_EX_TOOLWINDOW, WS_EX_TRANSPARENT
+    EnumWindows, GetClassNameW, GetClientRect, GetTopWindow, GetWindow, GetWindowLongW,
+    GetWindowRect, GetWindowTextW, IsIconic, IsWindowVisible, GWL_EXSTYLE, GW_HWNDNEXT,
+    WS_EX_TOOLWINDOW, WS_EX_TRANSPARENT,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -89,8 +91,8 @@ unsafe extern "system" fn enum_window_proc(hwnd: HWND, lparam: LPARAM) -> BOOL {
             class_name == "Windows.UI.Core.CoreWindow" || class_name == "Progman";
 
         // 特别标记任务栏窗口
-        let is_task_bar = class_name == "Shell_TrayWnd" 
-            || class_name == "Shell_SecondaryTrayWnd" 
+        let is_task_bar = class_name == "Shell_TrayWnd"
+            || class_name == "Shell_SecondaryTrayWnd"
             || class_name == "TopLevelWindowForOverflowXamlIsland"
             || class_name == "NotifyIconOverflowWindow"
             || class_name == "SysPager"
@@ -158,7 +160,7 @@ pub fn calculate_top_windows(windows: &Vec<WindowElement>) -> HashSet<WindowElem
             uncovered_windows.insert(window.clone());
             continue;
         }
-        
+
         let mut has_covered = false;
         let window_rect = Rect::new(window.x, window.y, window.width, window.height);
         // 检查上层窗口的遮挡

@@ -26,7 +26,30 @@ export default defineConfig({
       input: {
         main: 'index.html',
         overlay: 'overlay.html'
-      }
+      },
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return;
+          }
+          if (id.includes('/react/') || id.includes('/react-dom/')) {
+            return 'react';
+          }
+          if (id.includes('/i18next/') || id.includes('/react-i18next/')) {
+            return 'i18n';
+          }
+          if (id.includes('/@ant-design/icons/')) {
+            return 'ant-icons';
+          }
+          if (id.includes('/@ant-design/') || id.includes('/antd/')) {
+            return 'antd';
+          }
+          if (id.includes('/rc-') || id.includes('/@rc-component/')) {
+            return 'rc-components';
+          }
+          return 'vendor';
+        },
+      },
     }
   },
 }); 

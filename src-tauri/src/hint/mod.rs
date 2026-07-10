@@ -5,13 +5,13 @@ pub mod overlay;
 use crate::config;
 use crate::hint::generator::HintsGenerator;
 use crate::input;
-use log::{debug, error, info};
-use overlay::ensure_all_overlays_topmost;
-use serde_json::json;
-use std::collections::HashSet;
 use hint::clear_hints;
 use hint::save_hints;
 use hint::update_hints_offset;
+use log::{debug, error};
+use overlay::ensure_all_overlays_topmost;
+use serde_json::json;
+use std::collections::HashSet;
 use tauri::Emitter;
 use tauri::{Manager, WebviewWindow};
 
@@ -33,7 +33,8 @@ pub async fn show_hints(window: WebviewWindow) {
     input::keyboard::switch_keyboard_ctrl(true, Some(&app_handle));
     debug!("[show_hints] switch keyboard ctrl to true");
     let monitor_grid_hints = hints_generator.generate_hints_grid(&mut hints_count);
-    let mut monitor_hints = hints_generator.generate_hints_batch1(&mut position_set, &mut hints_count);
+    let mut monitor_hints =
+        hints_generator.generate_hints_batch1(&mut position_set, &mut hints_count);
     for (window_label, grid_hints) in &monitor_grid_hints {
         if let Some(hints) = monitor_hints.get_mut(window_label) {
             hints.extend(grid_hints.clone());
@@ -52,7 +53,11 @@ pub async fn show_hints(window: WebviewWindow) {
             ) {
                 error!("[show_hints] show-hints failed: {}", e);
             }
-            debug!("[show_hints] show {} hints to overlay window: {}", hints.len(), window_label);
+            debug!(
+                "[show_hints] show {} hints to overlay window: {}",
+                hints.len(),
+                window_label
+            );
         }
         // 保存 hints 到存储
         save_hints(window_label.clone(), hints.clone()).await;
@@ -73,7 +78,11 @@ pub async fn show_hints(window: WebviewWindow) {
             ) {
                 error!("[show_hints] show-hints2 failed: {}", e);
             }
-            debug!("[show_hints] show {} hints2 to overlay window: {}", hints.len(), window_label);
+            debug!(
+                "[show_hints] show {} hints2 to overlay window: {}",
+                hints.len(),
+                window_label
+            );
         }
         // 保存 hints 到存储
         save_hints(window_label.clone(), hints.clone()).await;

@@ -21,14 +21,16 @@ pub const HINT_KEY: &str = "HintKey";
 pub const HINT_RIGHT_KEY: &str = "HintRightKey";
 pub const HINT_LEFT_KEY: &str = "HintLeftKey";
 
-pub static VIRTUAL_KEY_MAP: Lazy<Mutex<IndexMap<u16, String>>> = Lazy::new(|| Mutex::new({
-    let config = super::get_config().unwrap().keyboard;
-    let mut map = IndexMap::new();
-    for (key, vk) in &config.available_key {
-        map.insert(*vk, key.clone());
-    }
-    map
-}));
+pub static VIRTUAL_KEY_MAP: Lazy<Mutex<IndexMap<u16, String>>> = Lazy::new(|| {
+    Mutex::new({
+        let config = super::get_config().unwrap().keyboard;
+        let mut map = IndexMap::new();
+        for (key, vk) in &config.available_key {
+            map.insert(*vk, key.clone());
+        }
+        map
+    })
+});
 
 impl KeyboardConfig {
     pub fn get_left_key(&self, key: &str) -> Option<&str> {

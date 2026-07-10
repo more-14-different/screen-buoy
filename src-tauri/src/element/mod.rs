@@ -1,8 +1,8 @@
-mod ui_automation;
 pub mod element;
+mod ui_automation;
 
-pub use ui_automation::UIElement;
 pub use element::WINDOWS_UI_ELEMENTS_MAP_STORAGE;
+pub use ui_automation::UIElement;
 
 use crate::config;
 use element::collect_ui_elements;

@@ -1,7 +1,7 @@
 use crate::config;
 use crate::hint::{filter_hints, hide_hints};
 use crate::input::{executor, mouse};
-use log::{debug, error, info};
+use log::{debug, info};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -148,7 +148,10 @@ pub fn handle_keyboard_event(app_handle: &tauri::AppHandle, key: &str, is_down: 
             if let Some(pressed) = state.hold_keys.get(modifier_key) {
                 if *pressed {
                     // 如果传播修饰键是按住的状态，则不处理
-                    debug!("[handle_keyboard_event] propagation_modifier: {} is_down: {}", modifier_key, is_down);
+                    debug!(
+                        "[handle_keyboard_event] propagation_modifier: {} is_down: {}",
+                        modifier_key, is_down
+                    );
                     return false;
                 }
             }
@@ -247,13 +250,19 @@ pub fn handle_keyboard_event(app_handle: &tauri::AppHandle, key: &str, is_down: 
                     return true;
                 } else if config::keyboard::is_right_key_of(key, last_key) {
                     current_key = config::keyboard::HINT_RIGHT_KEY;
-                    debug!("[handle_keyboard_event] current_key: {} is_right_key_of: {}", current_key, last_key);
+                    debug!(
+                        "[handle_keyboard_event] current_key: {} is_right_key_of: {}",
+                        current_key, last_key
+                    );
                     if state.hold_keys.contains_key(key) {
                         state.hold_keys.remove(key);
                     }
                 } else if config::keyboard::is_left_key_of(key, last_key) {
                     current_key = config::keyboard::HINT_LEFT_KEY;
-                    debug!("[handle_keyboard_event] current_key: {} is_left_key_of: {}", current_key, last_key);
+                    debug!(
+                        "[handle_keyboard_event] current_key: {} is_left_key_of: {}",
+                        current_key, last_key
+                    );
                     if state.hold_keys.contains_key(key) {
                         state.hold_keys.remove(key);
                     }

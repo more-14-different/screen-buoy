@@ -1,9 +1,9 @@
-use log::{debug, error, info};
+use log::{debug, error};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use windows::Win32::{Foundation::*, System::Com::*, UI::Accessibility::*};
 use std::time::{SystemTime, UNIX_EPOCH};
+use windows::Win32::{Foundation::*, System::Com::*, UI::Accessibility::*};
 
 use crate::config;
 use crate::window::WindowElement;
@@ -27,7 +27,7 @@ pub struct UIElement {
     pub element_type: usize,
 }
 
-static ELEMENTS_CACHE_WITH_EXPIRATION: Lazy<Mutex<HashMap<i64, (Vec<UIElement>, u128)>>> = 
+static ELEMENTS_CACHE_WITH_EXPIRATION: Lazy<Mutex<HashMap<i64, (Vec<UIElement>, u128)>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 
 impl UIAutomationRequest {
@@ -35,26 +35,42 @@ impl UIAutomationRequest {
         unsafe {
             let automation = CoCreateInstance::<_, IUIAutomation>(&CUIAutomation, None, CLSCTX_ALL)
                 .expect("Failed to create UI Automation");
-            let condition = automation.CreateTrueCondition()
+            let condition = automation
+                .CreateTrueCondition()
                 .expect("Failed to create condition");
             UIAutomationRequest {
-                automation, condition
+                automation,
+                condition,
             }
         }
     }
 
     pub fn get_elements_for_window(&self, window: &WindowElement) -> Option<Vec<UIElement>> {
         unsafe {
-            let root_element = self.automation.ElementFromHandle(HWND(window.window_handle as *mut _)).ok()?;
+            let root_element = self
+                .automation
+                .ElementFromHandle(HWND(window.window_handle as *mut _))
+                .ok()?;
             match root_element.FindAll(TreeScope_Subtree, &self.condition) {
                 Ok(elements) => {
-                let expire_at = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() + config::get_config().unwrap().ui_automation.cache_ttl as u128;
-                let window_handle = window.window_handle;
-                let elements = convert_ui_automation(elements, window_handle);
-                ELEMENTS_CACHE_WITH_EXPIRATION.lock().unwrap().insert(window_handle, (elements.clone(), expire_at));
-                debug!("[get_elements_for_window] get {} elements for window: {}", elements.len(), window_handle);
-                Some(elements)
-            }
+                    let expire_at = SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap()
+                        .as_millis()
+                        + config::get_config().unwrap().ui_automation.cache_ttl as u128;
+                    let window_handle = window.window_handle;
+                    let elements = convert_ui_automation(elements, window_handle);
+                    ELEMENTS_CACHE_WITH_EXPIRATION
+                        .lock()
+                        .unwrap()
+                        .insert(window_handle, (elements.clone(), expire_at));
+                    debug!(
+                        "[get_elements_for_window] get {} elements for window: {}",
+                        elements.len(),
+                        window_handle
+                    );
+                    Some(elements)
+                }
                 Err(e) => {
                     error!("[get_elements_for_window] find all elements failed: {}", e);
                     None
@@ -62,14 +78,23 @@ impl UIAutomationRequest {
             }
         }
     }
-    
+
     pub fn get_cached_elements_for_window(&self, window: &WindowElement) -> Option<Vec<UIElement>> {
         let window_handle = window.window_handle;
         let expired = {
             let cache = ELEMENTS_CACHE_WITH_EXPIRATION.lock().unwrap();
             if let Some((elements, expire_at)) = cache.get(&window_handle) {
-                if SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() <= *expire_at {
-                    debug!("[get_cached_elements_for_window] get cached {} elements for window: {}", elements.len(), window_handle);
+                if SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis()
+                    <= *expire_at
+                {
+                    debug!(
+                        "[get_cached_elements_for_window] get cached {} elements for window: {}",
+                        elements.len(),
+                        window_handle
+                    );
                     return Some(elements.clone());
                 }
                 true
@@ -81,7 +106,10 @@ impl UIAutomationRequest {
         if expired {
             let mut cache = ELEMENTS_CACHE_WITH_EXPIRATION.lock().unwrap();
             cache.remove(&window_handle);
-            debug!("[get_cached_elements_for_window] remove expired elements for window: {}", window_handle);
+            debug!(
+                "[get_cached_elements_for_window] remove expired elements for window: {}",
+                window_handle
+            );
         }
         self.get_elements_for_window(window)
     }
@@ -92,7 +120,10 @@ pub fn get_cached_elements_for_window(window: &WindowElement) -> Option<Vec<UIEl
     request.get_cached_elements_for_window(window)
 }
 
-unsafe fn convert_ui_automation(all_elements: IUIAutomationElementArray, window_handle: i64) -> Vec<UIElement> {
+unsafe fn convert_ui_automation(
+    all_elements: IUIAutomationElementArray,
+    window_handle: i64,
+) -> Vec<UIElement> {
     let mut position_map: HashMap<(i32, i32), UIElement> = HashMap::new();
     let count = match all_elements.Length() {
         Ok(len) => len,
@@ -105,20 +136,15 @@ unsafe fn convert_ui_automation(all_elements: IUIAutomationElementArray, window_
     for i in 0..count {
         let element = match all_elements.GetElement(i) {
             Ok(e) => e,
-            Err(_) => continue
+            Err(_) => continue,
         };
 
         // 检查可见性和启用状态
-        let (is_enabled, is_offscreen) = match (
-            element.CurrentIsEnabled(),
-            element.CurrentIsOffscreen(),
-        ) {
-            (Ok(e), Ok(o)) => (
-                e.as_bool(),
-                o.as_bool(),
-            ),
-            _ => continue
-        };
+        let (is_enabled, is_offscreen) =
+            match (element.CurrentIsEnabled(), element.CurrentIsOffscreen()) {
+                (Ok(e), Ok(o)) => (e.as_bool(), o.as_bool()),
+                _ => continue,
+            };
         if !is_enabled || is_offscreen {
             continue;
         }
@@ -174,7 +200,10 @@ unsafe fn convert_ui_automation(all_elements: IUIAutomationElementArray, window_
 
 // 定时清理过期key的方法
 pub fn clean_expired_cache() {
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
     let mut cache = ELEMENTS_CACHE_WITH_EXPIRATION.lock().unwrap();
     cache.retain(|_, (_, expire_at)| *expire_at > now);
 }

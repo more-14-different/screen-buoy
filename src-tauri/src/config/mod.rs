@@ -43,7 +43,7 @@ pub fn get_config_path() -> Option<String> {
                 // For macOS .app: executable is at screen-buoy.app/Contents/MacOS/screen-buoy
                 // config is next to the .app bundle, so check ../../.. relative to exe
                 let candidates = vec![
-                    exe_dir.join(filename),              // next to exe
+                    exe_dir.join(filename),                         // next to exe
                     exe_dir.join(format!("../../../{}", filename)), // next to .app bundle (macOS)
                 ];
                 for candidate in candidates {
@@ -142,7 +142,10 @@ pub fn save_config_for_frontend(config: Config) {
             // Try to place config next to the executable
             std::env::current_exe()
                 .ok()
-                .and_then(|p| p.parent().map(|d| d.join("config.toml").to_string_lossy().to_string()))
+                .and_then(|p| {
+                    p.parent()
+                        .map(|d| d.join("config.toml").to_string_lossy().to_string())
+                })
                 .unwrap_or_else(|| "config.toml".to_string())
         }
     });

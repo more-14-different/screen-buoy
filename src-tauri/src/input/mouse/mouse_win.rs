@@ -1,6 +1,5 @@
 use crate::monitor::MONITORS_STORAGE;
-use log::{error, info};
-use serde::{Deserialize, Serialize};
+use log::error;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     mouse_event, MOUSEEVENTF_HWHEEL, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP,
     MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP, MOUSEEVENTF_MOVE, MOUSEEVENTF_RIGHTDOWN,
@@ -101,12 +100,6 @@ fn wheel_move(delta_x: i32, delta_y: i32) -> windows::core::Result<()> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Point {
-    x: i32,
-    y: i32,
-}
-
 pub async fn mouse_click_left() {
     if let Err(e) = click_left() {
         error!("[mouse_click_left] failed: {}", e);
@@ -166,10 +159,6 @@ pub async fn mouse_wheel_move(delta_x: i32, delta_y: i32) {
     }
 }
 
-pub async fn hide_cursor() {
-}
+pub async fn hide_cursor() {}
 
-pub async fn show_cursor() {
-}
-
-
+pub async fn show_cursor() {}

@@ -4,21 +4,24 @@ pub mod config;
 pub mod element;
 pub mod hint;
 pub mod input;
+#[cfg(target_os = "macos")]
+pub mod macos_access;
 pub mod monitor;
 pub mod utils;
 pub mod window;
-#[cfg(target_os = "macos")]
-pub mod macos_access;
 
 #[cfg(target_os = "macos")]
 pub fn set_app_activation_policy_accessory() {
     macos_window::set_app_activation_policy_accessory();
 }
 
-use config::{get_config_for_frontend, get_hint_types_styles, hint::get_hint_default_style, save_config_for_frontend};
-use hint::show_hints;
+use config::{
+    get_config_for_frontend, get_hint_types_styles, hint::get_hint_default_style,
+    save_config_for_frontend,
+};
 #[cfg(target_os = "windows")]
 use hint::overlay::OVERLAY_HANDLES_STORAGE;
+use hint::show_hints;
 use log::{error, info, warn};
 use std::{panic, str::FromStr};
 use tauri::{
@@ -30,13 +33,13 @@ use tauri::{
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 #[cfg(target_os = "windows")]
-use windows::Win32::{Foundation::HWND, Graphics::Dwm::DWMWINDOWATTRIBUTE};
-#[cfg(target_os = "windows")]
 use windows::Win32::Graphics::Dwm::DwmSetWindowAttribute;
 #[cfg(target_os = "windows")]
 use windows::Win32::UI::WindowsAndMessaging::{
     GetWindowLongW, SetWindowLongW, GWL_EXSTYLE, WS_EX_LAYERED, WS_EX_TRANSPARENT,
 };
+#[cfg(target_os = "windows")]
+use windows::Win32::{Foundation::HWND, Graphics::Dwm::DWMWINDOWATTRIBUTE};
 
 pub fn setup_tray(
     app_handle: &AppHandle,
@@ -218,7 +221,10 @@ pub fn create_overlay_window(
 ) {
     // 如果已存在，先关闭
     if let Some(existing_window) = app_handle.get_webview_window(&window_label) {
-        warn!("[create_overlay_window] close existing window: {}", window_label);
+        warn!(
+            "[create_overlay_window] close existing window: {}",
+            window_label
+        );
         if let Err(e) = existing_window.close() {
             error!(
                 "[create_overlay_window] close existing window failed: {}",
@@ -373,7 +379,10 @@ mod macos_window {
     pub fn set_app_activation_policy_accessory() {
         unsafe {
             let cls = objc_getClass(b"NSApplication\0".as_ptr() as *const _);
-            let ns_app = send_void(cls, sel_registerName(b"sharedApplication\0".as_ptr() as *const _));
+            let ns_app = send_void(
+                cls,
+                sel_registerName(b"sharedApplication\0".as_ptr() as *const _),
+            );
             let sel = sel_registerName(b"setActivationPolicy:\0".as_ptr() as *const _);
             send_i64(ns_app, sel, 1); // NSApplicationActivationPolicyAccessory
         }
