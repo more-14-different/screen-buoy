@@ -9,6 +9,7 @@ Screen Buoy is a Tauri 2 desktop app with a React/Vite settings UI and a Rust ba
 - `npm install`: install frontend and Tauri CLI dependencies.
 - `npm run dev`: run the Vite frontend only.
 - `npm run tauri:dev`: run the full desktop app in development mode.
+- `.\run-screen-buoy.ps1`: rebuild and restart the executable.
 - `npm run build`: type-check with `tsc` and build the frontend bundle.
 - `npm run tauri build`: build a distributable Tauri app.
 - `cd src-tauri; cargo build`: compile the Rust backend directly.
